@@ -66,8 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
             applicationData[currentEditIndex] = newEntry;
         }
         localStorage.setItem("applicationData", JSON.stringify(applicationData));
-        applicationData = fetchData();
+        
         displayLayout("home");
+        applicationData = fetchData();
+        renderData();
         return;
 
     });
