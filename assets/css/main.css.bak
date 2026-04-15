@@ -22,18 +22,6 @@ footer {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-
-main form input, main form textarea, main form select{
-    display:block;
-    width:100%;
-    margin-bottom:20px;
-    padding:10px;
-    border-radius: 3px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-}
-
-
 footer {
     margin-bottom: 0;
 }
