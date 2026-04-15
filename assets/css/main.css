@@ -22,6 +22,17 @@ footer {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+main section#home #article-list article {
+    border-bottom: 1px solid #eee;
+    padding: 20px 0;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+    border: 1px solid #ccc;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
 
 main form input, main form textarea, main form select{
     display:block;

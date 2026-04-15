@@ -1,4 +1,5 @@
 let applicationData = [];
+let currentEditIndex = null;
 
 
 // Extract ID from URL hash
@@ -14,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
         case 'new':
             console.log('Creating new entry');
             displayLayout("new");
+            currentEditIndex = null;
+            initForm();
             break;
         default:
             applicationData = fetchData();
@@ -27,7 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
         navLink.addEventListener('click', (event) => {
             event.preventDefault();
             const id = navLink.getAttribute('href').slice(1);
+            console.log('Navigating to: [' + id + ']');
+            
             displayLayout(id);
+            if(id == '' || id == 'home') {
+                
+                renderData();
+            } else if(id == 'new') {
+                currentEditIndex = null;
+                initForm();
+            }
         });
     });
 
@@ -44,7 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
             notes: []
         };
         console.log('New entry:', newEntry);
-        applicationData.unshift(newEntry);
+
+        if(currentEditIndex == null) {
+            applicationData.unshift(newEntry);
+        } else {
+            applicationData[currentEditIndex] = newEntry;
+        }
         localStorage.setItem("applicationData", JSON.stringify(applicationData));
         applicationData = fetchData();
         displayLayout("home");
@@ -59,11 +76,32 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+function initForm(entry) {
 
+    if(typeof entry === 'undefined') {
+        document.querySelector('#company').value = '';
+        document.querySelector('#job_title').value = '';
+        document.querySelector('#application_date').value = '';
+        document.querySelector('#contact_info').value = '';
+        document.querySelector('#job_posting').value = '';
+        document.querySelector('#status').value = '';
+        return;
+    }
+
+    document.querySelector('#company').value = entry.company;
+    document.querySelector('#job_title').value = entry.job_title;
+    document.querySelector('#application_date').value = entry.date;
+    document.querySelector('#contact_info').value = entry.contact_info;
+    document.querySelector('#job_posting').value = entry.job_posting;
+    document.querySelector('#status').value = entry.status;
+}
 
 // Display the layout with fetched data
 function displayLayout(layout) {
     console.log('Displaying data:', layout);
+    if(layout == '') {
+        layout = 'home';
+    }
 
     document.querySelectorAll('section').forEach((section) => {
         section.style.display = section.id === layout ? 'block' : 'none';
@@ -81,7 +119,7 @@ function renderData() {
     const homeSection = document.querySelector('#article-list');
 
     homeSection.innerHTML = '';
-
+    console.log('Rendering data:', applicationData);
     applicationData.forEach((entry) => {
         const article = document.createElement('article');
         article.innerHTML = `
@@ -89,6 +127,14 @@ function renderData() {
             <div class="job-title">${entry.job_title}</div>
             <div class="application-date">${entry.date}</div>
         `;
+
+        article.addEventListener('click', () => {
+            displayLayout("new");
+            currentEditIndex = applicationData.indexOf(entry);
+
+             // Populate edit form with entry data
+            initForm(entry);
+        });
         homeSection.appendChild(article);
     });
 }
