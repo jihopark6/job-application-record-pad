@@ -1,4 +1,6 @@
 let applicationData = [];
+let memoData = new Map();
+let memoLastId = 0;
 let currentEditIndex = null;
 
 
@@ -10,21 +12,22 @@ const getIdFromHash = () => window.location.hash.slice(1);
 document.addEventListener('DOMContentLoaded', () => {
     const id = getIdFromHash();
     
+    displayLayout(id);
     
     switch (id) {
         case 'new':
             console.log('Creating new entry');
-            displayLayout("new");
             currentEditIndex = null;
             initForm();
             break;
         default:
             applicationData = fetchData();
-            displayLayout("home");
             renderData();
             break;
         
     }
+
+    
 
     document.querySelectorAll('nav ul li a').forEach((navLink) => {
         navLink.addEventListener('click', (event) => {
@@ -85,6 +88,8 @@ function initForm(entry) {
         document.querySelector('#contact_info').value = '';
         document.querySelector('#job_posting').value = '';
         document.querySelector('#status').value = '';
+
+        document.querySelector('#status').value = '';
         return;
     }
 
@@ -113,6 +118,11 @@ function displayLayout(layout) {
 function fetchData() {
     const data = localStorage.getItem("applicationData");
     return data ? JSON.parse(data) : [];
+}
+
+function fetchMemoData() {
+    const data = localStorage.getItem("memoData");
+    return new Map(data ? JSON.parse(data) : []);
 }
 
 function renderData() {

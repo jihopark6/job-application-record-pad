@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Job Application Record Pad</title>
+    <title>Job Application History</title>
     <link rel="stylesheet" href="./assets/css/main.css" type="text/css">
     <link rel="stylesheet" href="./assets/css/main.responsive.css" type="text/css">
     <script src="./assets/js/main.js"></script>
@@ -11,7 +11,7 @@
 <body>
     
     <header>
-        <h1>Job Application Record Pad</h1>
+        <h1>Job Application History</h1>
         <nav>
             <ul>
                 <li><a href="#">Home</a></li>
@@ -71,6 +71,30 @@
                 </div>
             </form>
         </section>
+
+        <section id="memo">
+            <div id="memo-list">
+                <article>
+                    <form action="" method="post" id="new_memo_form">
+                        <div>
+                            <label for="job_application">Job Application:</label>
+                            <select id="job_application" name="job_application">
+
+                            </select>
+                        </div>
+                        <div>
+                            <label for="memo_content">Memo:</label>
+                            <textarea id="memo_content" name="memo_content" required></textarea>
+                        </div>
+
+                        <div>
+                            <button type="submit">Add Memo</button>
+                            <button type="button" id="cancel_memo_button">Cancel</button>
+                        </div>
+                </article>
+            </div>
+
+        </section>
     </main>
 
     <aside>
@@ -78,7 +102,9 @@
     </aside>
 
     <footer>
-
+        <div class="container">
+            <p>&copy; 2026 Job Application History. All rights reserved.</p>
+        </div>
     </footer>
 </body>
 </html>
