@@ -6,6 +6,7 @@
     <title>Job Application Record Pad</title>
     <link rel="stylesheet" href="./assets/css/main.css" type="text/css">
     <link rel="stylesheet" href="./assets/css/main.responsive.css" type="text/css">
+    <script src="./assets/js/main.js"></script>
 </head>
 <body>
     
@@ -22,10 +23,53 @@
 
 
     <main>
-        <section id="main">
-            <article>
+        <section id="home">
+            <div id="article-list">
+            </div>
+        </section>
+
+        <section id="new">
+            <form action="" method="post" id="new_entity_form">
+                <div>
+                <label for="application_date">Date:</label>
+                <input type="date" id="application_date" name="application_date" required>
+                </div>
                 
-            </article>
+                <div>
+                <label for="company">Company Name:</label>
+                <input type="text" id="company" name="company" required>
+                </div>
+
+                <div>
+                <label for="job_title">Job Title:</label>
+                <input type="text" id="job_title" name="job_title" required>
+                </div>
+
+                <div>
+                <label for="job_posting">Job Posting:</label>
+                <input type="text" id="job_posting" name="job_posting">
+                </div>
+
+                <div>
+                <label for="contact_info">Contact Information:</label>
+                <input type="tel" id="contact_info" name="contact_info">
+                </div>
+
+                <div>
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="applied">Applied</option>
+                    <option value="interviewing">Interviewing</option>
+                    <option value="offer">Offer</option>
+                    <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+
+                <div>
+                    <button type="submit">Add</button>
+                    <button type="button" id="cancel_button">Cancel</button>
+                </div>
+            </form>
         </section>
     </main>
 
