@@ -7,6 +7,14 @@ let currentEditIndex = null;
 // Extract ID from URL hash
 const getIdFromHash = () => window.location.hash.slice(1);
 
+function insertMemo(applicationIdx, content) {
+    const memoId = ++memoLastId;
+    memoData.set(memoId, content);
+    applicationData[applicationIdx].notes.push(memoId);
+    localStorage.setItem("memoData", JSON.stringify(Array.from(memoData.entries())));
+    localStorage.setItem("memoLastId", memoLastId.toString());
+    localStorage.setItem("applicationData", JSON.stringify(applicationData));
+}
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,14 +28,16 @@ document.addEventListener('DOMContentLoaded', () => {
             currentEditIndex = null;
             initForm();
             break;
+        case 'memo':
+            applicationData = fetchData();
+            renderAppSelectBox();
+            break;
         default:
             applicationData = fetchData();
             renderData();
             break;
         
     }
-
-    
 
     document.querySelectorAll('nav ul li a').forEach((navLink) => {
         navLink.addEventListener('click', (event) => {
@@ -36,12 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Navigating to: [' + id + ']');
             
             displayLayout(id);
-            if(id == '' || id == 'home') {
-                
-                renderData();
+            if(id == 'memo') {
+                renderAppSelectBox();
+                //renderData();
             } else if(id == 'new') {
                 currentEditIndex = null;
                 initForm();
+            } else {
+                renderData();
             }
         });
     });
@@ -74,6 +86,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
+    document.querySelector('#new_memo_form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);    
+        const applicationIdx = formData.get('job_application');
+        const content = formData.get('memo_content');
+        insertMemo(applicationIdx, content);
+        alert('Memo added successfully!');
+        document.querySelector('#memo_content').value = '';
+        displayLayout("home");
+    });
+
     document.getElementById('cancel_button').addEventListener('click', (event) => {
         displayLayout("home");
     });
@@ -101,6 +124,9 @@ function initForm(entry) {
     document.querySelector('#contact_info').value = entry.contact_info;
     document.querySelector('#job_posting').value = entry.job_posting;
     document.querySelector('#status').value = entry.status;
+
+    renderMemoData(currentEditIndex);
+
 }
 
 // Display the layout with fetched data
@@ -124,6 +150,7 @@ function fetchData() {
 
 function fetchMemoData() {
     const data = localStorage.getItem("memoData");
+    memoLastId = parseInt(localStorage.getItem("memoLastId")) || 0;
     return new Map(data ? JSON.parse(data) : []);
 }
 
@@ -149,4 +176,40 @@ function renderData() {
         });
         homeSection.appendChild(article);
     });
+}
+
+function renderMemoData(entryId) {
+
+    const memoListSection = document.querySelector('#application_memo_list');
+    memoListSection.innerHTML = '';
+
+    if(entryId === null) {
+        return;
+    }
+
+    memoData = fetchMemoData();
+
+console.log(applicationData[entryId].notes);
+    console.log(memoData);
+    applicationData[entryId].notes.forEach((memoId) => {
+        const memoContent = memoData.get(memoId);
+        const memoItem = document.createElement('div');
+        memoItem.classList.add('memo-item');
+        memoItem.textContent = memoContent;
+        memoListSection.appendChild(memoItem);
+    });
+}
+
+function renderAppSelectBox() {
+    document.querySelector('#job_application').innerHTML = '';
+    applicationData.forEach((entry, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${entry.company} - ${entry.job_title}`;
+        document.querySelector('#job_application').appendChild(option);
+    });
+}
+
+
+function loadMemoData() {
 }
