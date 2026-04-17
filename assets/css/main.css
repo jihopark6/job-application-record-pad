@@ -31,7 +31,11 @@ main section#home #article-list article {
     border: 1px solid #ccc;
     padding: 15px;
     box-sizing: border-box;
-    
+    margin-top:20px;
+}
+
+main section#home #article-list article:first-child {
+    margin-top: 0;
 }
 
 
@@ -43,6 +47,24 @@ main form input, main form textarea, main form select{
     border-radius: 3px;
     box-sizing: border-box;
     border: 1px solid #ccc;
+}
+
+main #application_memo_list {
+
+}
+
+main #application_memo_list .memo-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+aside #search_input {
+    display:block;
+    width:100%;
+    padding:10px;
+    border-radius:3px;
+    box-sizing:border-box;
+    border:1px solid #ccc;
 }
 
 button {

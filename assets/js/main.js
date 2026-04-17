@@ -9,7 +9,9 @@ const getIdFromHash = () => window.location.hash.slice(1);
 
 function insertMemo(applicationIdx, content) {
     const memoId = ++memoLastId;
-    memoData.set(memoId, content);
+    const date = new Date().toISOString();
+    const memoContent = `${date}: ${content}`;
+    memoData.set(memoId, memoContent);
     applicationData[applicationIdx].notes.push(memoId);
     localStorage.setItem("memoData", JSON.stringify(Array.from(memoData.entries())));
     localStorage.setItem("memoLastId", memoLastId.toString());
@@ -101,8 +103,33 @@ document.addEventListener('DOMContentLoaded', () => {
         displayLayout("home");
     });
 
-});
+    document.getElementById('delete_application_button').addEventListener('click', (event) => {
+        if(currentEditIndex !== null) {
+            if(confirm('Are you sure you want to delete this application?')) {
 
+                if(applicationData[currentEditIndex].notes) {
+                    applicationData[currentEditIndex].notes.forEach((memoId) => {
+                        memoData.delete(memoId);
+                    });
+                    localStorage.setItem("memoData", JSON.stringify(Array.from(memoData.entries())));
+                }
+
+                applicationData.splice(currentEditIndex, 1);
+                localStorage.setItem("applicationData", JSON.stringify(applicationData));
+                displayLayout("home");
+                renderData();
+            }
+        }
+    });
+
+    document.querySelector('#search_input').addEventListener('input', (event) => {
+        const query = event.target.value.toLowerCase();
+        const filteredData = applicationData.filter((entry) => {
+            return entry.company.toLowerCase().includes(query) || entry.job_title.toLowerCase().includes(query);
+        });
+        renderData(filteredData);
+    });
+});
 
 function initForm(entry) {
 
@@ -115,6 +142,7 @@ function initForm(entry) {
         document.querySelector('#status').value = '';
 
         document.querySelector('#status').value = '';
+        document.querySelector('#delete_application_button').style.display = 'none';
         return;
     }
 
@@ -124,6 +152,7 @@ function initForm(entry) {
     document.querySelector('#contact_info').value = entry.contact_info;
     document.querySelector('#job_posting').value = entry.job_posting;
     document.querySelector('#status').value = entry.status;
+    document.querySelector('#delete_application_button').style.display = 'inline-block';
 
     renderMemoData(currentEditIndex);
 
@@ -154,17 +183,23 @@ function fetchMemoData() {
     return new Map(data ? JSON.parse(data) : []);
 }
 
-function renderData() {
+function renderData(filteredData) {
     const homeSection = document.querySelector('#article-list');
 
     homeSection.innerHTML = '';
-    console.log('Rendering data:', applicationData);
-    applicationData.forEach((entry) => {
+
+    if(typeof filteredData == 'undefined') {
+        filteredData = applicationData;
+    }
+
+    console.log('Rendering data:', filteredData);
+    filteredData.forEach((entry) => {
         const article = document.createElement('article');
         article.innerHTML = `
             <div class="company-name">${entry.company}</div>
             <div class="job-title">${entry.job_title}</div>
             <div class="application-date">${entry.date}</div>
+            <div class="application-status status-${entry.status}">${entry.status}</div>
         `;
 
         article.addEventListener('click', () => {
