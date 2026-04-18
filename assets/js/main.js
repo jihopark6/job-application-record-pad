@@ -13,7 +13,7 @@ function insertMemo(applicationIdx, content) {
     const memoId = ++memoLastId;
     const date = new Date().toISOString();
     const memoContent = `${date}: ${content}`;
-    memoData.set(memoId, memoContent);
+    memoData.set(memoId, {date, content});
     applicationData[applicationIdx].notes.push(memoId);
     localStorage.setItem("memoData", JSON.stringify(Array.from(memoData.entries())));
     localStorage.setItem("memoLastId", memoLastId.toString());
@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(currentEditIndex == null) {
             applicationData.unshift(newEntry);
         } else {
+            newEntry.notes = applicationData[currentEditIndex].notes || [];
             applicationData[currentEditIndex] = newEntry;
         }
         localStorage.setItem("applicationData", JSON.stringify(applicationData));
@@ -284,7 +285,7 @@ console.log(applicationData[entryId].notes);
         const memoItem = document.createElement('div');
         memoItem.classList.add('memo-item');
         memoItem.id = `memo-${memoId}`;
-        memoItem.textContent = memoContent;
+        memoItem.innerHTML =  `<span class="memo-date">${memoContent.date}</span><br />${memoContent.content}`;
 
         const deleteLink = document.createElement('a');
         deleteLink.href = '#';
