@@ -1,3 +1,5 @@
+
+
 let applicationData = [];
 let memoData = new Map();
 let memoLastId = 0;
@@ -281,7 +283,25 @@ console.log(applicationData[entryId].notes);
         const memoContent = memoData.get(memoId);
         const memoItem = document.createElement('div');
         memoItem.classList.add('memo-item');
+        memoItem.id = `memo-${memoId}`;
         memoItem.textContent = memoContent;
+
+        const deleteLink = document.createElement('a');
+        deleteLink.href = '#';
+        deleteLink.textContent = 'Delete';
+        deleteLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            if(confirm('Are you sure you want to delete this memo?')) {
+                memoData.delete(memoId);
+                localStorage.setItem("memoData", JSON.stringify(Array.from(memoData.entries())));
+                const memoIndex = applicationData[entryId].notes.indexOf(memoId);
+                applicationData[entryId].notes.splice(memoIndex, 1);
+                localStorage.setItem("applicationData", JSON.stringify(applicationData));
+                document.querySelector(`#memo-${memoId}`).remove();
+            }
+        });
+
+        memoItem.appendChild(deleteLink);
         memoListSection.appendChild(memoItem);
     });
 }
