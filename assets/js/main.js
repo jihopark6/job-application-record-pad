@@ -133,6 +133,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initForm(entry) {
 
+    const companyInput = document.querySelector('#company');
+    let companyDatalist = document.querySelector('#company_suggestions');
+
+    if (!companyDatalist) {
+        companyDatalist = document.createElement('datalist');
+        companyDatalist.id = 'company_suggestions';
+        companyInput.setAttribute('list', companyDatalist.id);
+        companyInput.insertAdjacentElement('afterend', companyDatalist);
+    }
+
+    if (!companyInput.dataset.autocompleteInitialized) {
+        companyInput.dataset.autocompleteInitialized = '1';
+        let debounceTimer;
+
+        companyInput.addEventListener('input', async () => {
+            const keyword = companyInput.value.trim();
+            companyDatalist.innerHTML = '';
+
+            if (!keyword || keyword.length < 2) {
+                return;
+            }
+
+            // Gives a very short delay while user is typing to avoid too many API calls.
+            clearTimeout(debounceTimer); 
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`https://example-api.jhp.app/company.php?search=${encodeURIComponent(keyword)}`);
+                    if (!response.ok) {
+                        return;
+                    }
+
+                    const suggestions = await response.json();
+                    if (suggestions.code != 200 || !Array.isArray(suggestions.data)) {
+                        return;
+                    }
+
+                    suggestions.data.slice(0, 10).forEach((item) => {
+                        const value = item.name.trim();
+                        if (value) {
+                            const option = document.createElement('option');
+                            option.value = value;
+                            companyDatalist.appendChild(option);
+                        }
+                    });
+                } catch (error) {
+                    console.error('Company autocomplete failed:', error);
+                }
+            }, 250);
+        });
+    }
+
     if(typeof entry === 'undefined') {
         document.querySelector('#company').value = '';
         document.querySelector('#job_title').value = '';
