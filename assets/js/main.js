@@ -20,119 +20,6 @@ function insertMemo(applicationIdx, content) {
     localStorage.setItem("applicationData", JSON.stringify(applicationData));
 }
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    const id = getIdFromHash();
-    
-    displayLayout(id);
-    
-    switch (id) {
-        case 'new':
-            console.log('Creating new entry');
-            currentEditIndex = null;
-            initForm();
-            break;
-        case 'memo':
-            applicationData = fetchData();
-            renderAppSelectBox();
-            break;
-        default:
-            applicationData = fetchData();
-            renderData();
-            break;
-        
-    }
-
-    document.querySelectorAll('nav ul li a').forEach((navLink) => {
-        navLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            const id = navLink.getAttribute('href').slice(1);
-            console.log('Navigating to: [' + id + ']');
-            
-            displayLayout(id);
-            if(id == 'memo') {
-                renderAppSelectBox();
-                //renderData();
-            } else if(id == 'new') {
-                currentEditIndex = null;
-                initForm();
-            } else {
-                renderData();
-            }
-        });
-    });
-
-    document.querySelector('#new_entity_form').addEventListener('submit', (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
-        const newEntry = {
-            date: formData.get('application_date'),
-            company: formData.get('company'),
-            contact_info: formData.get('contact_info'),
-            job_title: formData.get('job_title'),
-            job_posting: formData.get('job_posting'),
-            status: formData.get('status'),
-            notes: []
-        };
-        console.log('New entry:', newEntry);
-
-        if(currentEditIndex == null) {
-            applicationData.unshift(newEntry);
-        } else {
-            newEntry.notes = applicationData[currentEditIndex].notes || [];
-            applicationData[currentEditIndex] = newEntry;
-        }
-        localStorage.setItem("applicationData", JSON.stringify(applicationData));
-        
-        displayLayout("home");
-        applicationData = fetchData();
-        renderData();
-        return;
-
-    });
-
-    document.querySelector('#new_memo_form').addEventListener('submit', (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);    
-        const applicationIdx = formData.get('job_application');
-        const content = formData.get('memo_content');
-        insertMemo(applicationIdx, content);
-        alert('Memo added successfully!');
-        document.querySelector('#memo_content').value = '';
-        displayLayout("home");
-    });
-
-    document.getElementById('cancel_button').addEventListener('click', (event) => {
-        displayLayout("home");
-    });
-
-    document.getElementById('delete_application_button').addEventListener('click', (event) => {
-        if(currentEditIndex !== null) {
-            if(confirm('Are you sure you want to delete this application?')) {
-
-                if(applicationData[currentEditIndex].notes) {
-                    applicationData[currentEditIndex].notes.forEach((memoId) => {
-                        memoData.delete(memoId);
-                    });
-                    localStorage.setItem("memoData", JSON.stringify(Array.from(memoData.entries())));
-                }
-
-                applicationData.splice(currentEditIndex, 1);
-                localStorage.setItem("applicationData", JSON.stringify(applicationData));
-                displayLayout("home");
-                renderData();
-            }
-        }
-    });
-
-    document.querySelector('#search_input').addEventListener('input', (event) => {
-        const query = event.target.value.toLowerCase();
-        const filteredData = applicationData.filter((entry) => {
-            return entry.company.toLowerCase().includes(query) || entry.job_title.toLowerCase().includes(query);
-        });
-        renderData(filteredData);
-    });
-});
 
 function initForm(entry) {
 
@@ -320,3 +207,142 @@ function renderAppSelectBox() {
 
 function loadMemoData() {
 }
+
+const moduleList = [
+    'dom',
+    'event'
+];
+const loadedModules = { size: 0 };
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const id = getIdFromHash();
+    
+    moduleList.forEach((moduleName) => {
+        
+        import(`./${moduleName}.js`).then((module) => {
+            
+            module.default.init();
+            loadedModules[moduleName] = module.default;
+            loadedModules.size++;
+
+            console.log(`Module [${moduleName}] loaded successfully.`);
+        }).catch((error) => {
+            console.error('Failed to load event module:', error);
+        }).then(() => {
+            if(loadedModules.size === moduleList.length) {
+                
+                displayLayout(id);
+    
+                switch (id) {
+                    case 'new':
+                        console.log('Creating new entry');
+                        currentEditIndex = null;
+                        initForm();
+                        break;
+                    case 'memo':
+                        applicationData = fetchData();
+                        renderAppSelectBox();
+                        break;
+                    default:
+                        applicationData = fetchData();
+                        loadedModules.dom.renderApplicationList(applicationData);
+                        break;
+                    
+                }
+            }
+        });
+    });
+
+    
+
+    document.querySelectorAll('nav ul li a').forEach((navLink) => {
+        navLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            const id = navLink.getAttribute('href').slice(1);
+            console.log('Navigating to: [' + id + ']');
+            
+            displayLayout(id);
+            if(id == 'memo') {
+                renderAppSelectBox();
+                //renderData();
+            } else if(id == 'new') {
+                currentEditIndex = null;
+                initForm();
+            } else {
+                loadedModules.dom.renderApplicationList(applicationData);
+            }
+        });
+    });
+
+    document.querySelector('#new_entity_form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const newEntry = {
+            date: formData.get('application_date'),
+            company: formData.get('company'),
+            contact_info: formData.get('contact_info'),
+            job_title: formData.get('job_title'),
+            job_posting: formData.get('job_posting'),
+            status: formData.get('status'),
+            notes: []
+        };
+        console.log('New entry:', newEntry);
+
+        if(currentEditIndex == null) {
+            applicationData.unshift(newEntry);
+        } else {
+            newEntry.notes = applicationData[currentEditIndex].notes || [];
+            applicationData[currentEditIndex] = newEntry;
+        }
+        localStorage.setItem("applicationData", JSON.stringify(applicationData));
+        
+        displayLayout("home");
+        applicationData = fetchData();
+        loadedModules.dom.renderApplicationList(applicationData);
+        return;
+
+    });
+
+    document.querySelector('#new_memo_form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const formData = new FormData(event.target);    
+        const applicationIdx = formData.get('job_application');
+        const content = formData.get('memo_content');
+        insertMemo(applicationIdx, content);
+        alert('Memo added successfully!');
+        document.querySelector('#memo_content').value = '';
+        displayLayout("home");
+    });
+
+    document.getElementById('cancel_button').addEventListener('click', (event) => {
+        displayLayout("home");
+    });
+
+    document.getElementById('delete_application_button').addEventListener('click', (event) => {
+        if(currentEditIndex !== null) {
+            if(confirm('Are you sure you want to delete this application?')) {
+
+                if(applicationData[currentEditIndex].notes) {
+                    applicationData[currentEditIndex].notes.forEach((memoId) => {
+                        memoData.delete(memoId);
+                    });
+                    localStorage.setItem("memoData", JSON.stringify(Array.from(memoData.entries())));
+                }
+
+                applicationData.splice(currentEditIndex, 1);
+                localStorage.setItem("applicationData", JSON.stringify(applicationData));
+                displayLayout("home");
+                loadedModules.dom.renderApplicationList(applicationData);
+            }
+        }
+    });
+
+    document.querySelector('#search_input').addEventListener('input', (event) => {
+        const query = event.target.value.toLowerCase();
+        const filteredData = applicationData.filter((entry) => {
+            return entry.company.toLowerCase().includes(query) || entry.job_title.toLowerCase().includes(query);
+        });
+        loadedModules.dom.renderApplicationList(filteredData);
+    });
+});
